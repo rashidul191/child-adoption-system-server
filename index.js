@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -30,13 +30,22 @@ async function run() {
       .db("child-adoption-system")
       .collection("all_child");
 
-    app.get("/child/:childType", async (req, res) => {
-      const childType = req.params.childType
-      
-      const query = {childType:childType};
+    // app.get method, show one child to id
+    app.get("/child/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await childCollection.findOne(query);
+      res.send(result);
+    });
+
+    // app.get method, show child types to ui
+    app.get("/childs/:childType", async (req, res) => {
+      const childType = req.params.childType;
+      const query = { childType: childType };
       const result = await childCollection.find(query).toArray();
       res.send(result);
     });
+
   } finally {
     //
   }
