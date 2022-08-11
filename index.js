@@ -30,6 +30,10 @@ async function run() {
       .db("child-adoption-system")
       .collection("all_child");
 
+    const userCollection = client
+      .db("child-adoption-system")
+      .collection("users");
+
     // app.get method, show one child to id
     app.get("/child/:id", async (req, res) => {
       const id = req.params.id;
@@ -46,6 +50,17 @@ async function run() {
       res.send(result);
     });
 
+    // app.put method, store all user in database
+  /*   app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: req.body,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    }); */
   } finally {
     //
   }
