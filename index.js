@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -22,6 +23,12 @@ const client = new MongoClient(uri, {
 //   console.log("env file mongodb connected");
 //   client.close();
 // });
+
+
+// function verifyJWT(req, res, next){
+
+// }
+
 
 async function run() {
   try {
@@ -51,16 +58,25 @@ async function run() {
     });
 
     // app.put method, store all user in database
-  /*   app.put("/users/:email", async (req, res) => {
+    app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
+      // console.log("user email : ",email);
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
         $set: req.body,
       };
       const result = await userCollection.updateOne(filter, updateDoc, options);
-      res.send(result);
-    }); */
+      // generate jwt sign token(64bit)
+      const token = jwt.sign(
+        {
+          email: email,
+        },
+        process.env.ACCESS_SECRET_KEY,
+        { expiresIn: "1d" }
+      );
+      res.send({ result, token });
+    });
   } finally {
     //
   }
