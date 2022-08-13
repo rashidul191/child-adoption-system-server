@@ -17,13 +17,6 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// client.connect((err) => {
-//   const collection = client.db("child-adoption-system").collection("all_child");
-//   // perform actions on the collection object
-//   console.log("env file mongodb connected");
-//   client.close();
-// });
-
 // token verify jwt function
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
