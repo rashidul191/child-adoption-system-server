@@ -24,11 +24,9 @@ const client = new MongoClient(uri, {
 //   client.close();
 // });
 
-
 // function verifyJWT(req, res, next){
 
 // }
-
 
 async function run() {
   try {
@@ -40,6 +38,10 @@ async function run() {
     const userCollection = client
       .db("child-adoption-system")
       .collection("users");
+
+    const reviewCollection = client
+      .db("child-adoption-system")
+      .collection("reviews");
 
     // app.get method, show one child to id
     app.get("/child/:id", async (req, res) => {
@@ -76,6 +78,24 @@ async function run() {
         { expiresIn: "1d" }
       );
       res.send({ result, token });
+    });
+
+    // app.patch user review store database.
+    app.patch("/reviews/:email", async (req, res) => {
+      const review = req.body;
+      const email = req.params.email;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: review,
+      };
+
+      const result = await reviewCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
   } finally {
     //
