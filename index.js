@@ -24,9 +24,21 @@ const client = new MongoClient(uri, {
 //   client.close();
 // });
 
-// function verifyJWT(req, res, next){
-
-// }
+// token verify jwt function
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "UnAuthorized Access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_SECRET_KEY, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden Access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 
 async function run() {
   try {
@@ -78,6 +90,27 @@ async function run() {
         { expiresIn: "1d" }
       );
       res.send({ result, token });
+    });
+
+    // app.get all user show to ui
+    app.get("/allUsers", verifyJWT, async (req, res) => {
+      const query = {};
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.put make admin
+    app.put("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+
+      const result = await userCollection.updateOne(filter, updateDoc);
+      // console.log(result);
+      res.send(result);
     });
 
     // app.patch user review store database.
