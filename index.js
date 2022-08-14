@@ -106,6 +106,14 @@ async function run() {
       res.send(result);
     });
 
+    // app.delete user on database and show ui Admin Dashboard
+    app.delete("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // app.patch user review store database.
     app.patch("/reviews/:email", async (req, res) => {
       const review = req.body;
