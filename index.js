@@ -24,8 +24,10 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "UnAuthorized Access" });
   }
   const token = authHeader.split(" ")[1];
+
   jwt.verify(token, process.env.ACCESS_SECRET_KEY, function (err, decoded) {
     if (err) {
+      console.log("Token Error: ", err);
       return res.status(403).send({ message: "Forbidden Access" });
     }
     req.decoded = decoded;
@@ -47,6 +49,17 @@ async function run() {
     const reviewCollection = client
       .db("child-adoption-system")
       .collection("reviews");
+
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const query = { email: requester };
+      const requesterAccount = await userCollection.findOne(query);
+      if (requesterAccount.role === "admin") {
+        next();
+      } else {
+        res.status(403).send({ message: "forbidden" });
+      }
+    };
 
     // app.get method, show one child to id
     app.get("/child/:id", async (req, res) => {
@@ -81,6 +94,7 @@ async function run() {
         },
         process.env.ACCESS_SECRET_KEY,
         { expiresIn: "1d" }
+        // { expiresIn: "1m" }
       );
       res.send({ result, token });
     });
@@ -91,23 +105,46 @@ async function run() {
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
+    // app.get individual user show to ui
+    app.get("/user", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      const query = {email: email};
+      const result = await userCollection.findOne(query)
+      res.send(result);
+    });
 
     // app.put make admin
-    app.put("/users/admin/:email", async (req, res) => {
+    app.put("/users/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
-
       const filter = { email: email };
       const updateDoc = {
         $set: { role: "admin" },
       };
-
       const result = await userCollection.updateOne(filter, updateDoc);
-      // console.log(result);
+      res.send(result);
+    });
+    // app.put make employer
+    app.put("/users/employer/:email", verifyJWT, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "employer" },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
+    // app.get check admin find one
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+
     // app.delete user on database and show ui Admin Dashboard
-    app.delete("/user/:email", async (req, res) => {
+    app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await userCollection.deleteOne(query);
@@ -123,7 +160,6 @@ async function run() {
       const updateDoc = {
         $set: review,
       };
-
       const result = await reviewCollection.updateOne(
         filter,
         updateDoc,
