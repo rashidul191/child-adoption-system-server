@@ -24,7 +24,6 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "UnAuthorized Access" });
   }
   const token = authHeader.split(" ")[1];
-
   jwt.verify(token, process.env.ACCESS_SECRET_KEY, function (err, decoded) {
     if (err) {
       console.log("Token Error: ", err);
@@ -38,6 +37,7 @@ function verifyJWT(req, res, next) {
 async function run() {
   try {
     await client.connect();
+    // collection DB
     const childCollection = client
       .db("child-adoption-system")
       .collection("all_child");
@@ -50,6 +50,7 @@ async function run() {
       .db("child-adoption-system")
       .collection("reviews");
 
+    // verify Admin function
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
       const query = { email: requester };
@@ -60,6 +61,13 @@ async function run() {
         res.status(403).send({ message: "forbidden" });
       }
     };
+
+    // app.post method, child info store database
+    app.post("/childInsert", async (req, res) => {
+      const child = req.body;
+      const result = await childCollection.insertOne(child);
+      res.send(result);
+    });
 
     // app.get method, show one child to id
     app.get("/child/:id", async (req, res) => {
@@ -108,8 +116,8 @@ async function run() {
     // app.get individual user show to ui
     app.get("/user", verifyJWT, async (req, res) => {
       const email = req.query.email;
-      const query = {email: email};
-      const result = await userCollection.findOne(query)
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
       res.send(result);
     });
 
@@ -124,15 +132,20 @@ async function run() {
       res.send(result);
     });
     // app.put make employer
-    app.put("/users/employer/:email", verifyJWT, verifyAdmin, async (req, res) => {
-      const email = req.params.email;
-      const filter = { email: email };
-      const updateDoc = {
-        $set: { role: "employer" },
-      };
-      const result = await userCollection.updateOne(filter, updateDoc);
-      res.send(result);
-    });
+    app.put(
+      "/users/employer/:email",
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const updateDoc = {
+          $set: { role: "employer" },
+        };
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+    );
 
     // app.get check admin find one
     app.get("/admin/:email", async (req, res) => {
