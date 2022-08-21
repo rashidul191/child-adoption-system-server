@@ -50,6 +50,10 @@ async function run() {
       .db("child-adoption-system")
       .collection("reviews");
 
+    const agencyCollection = client
+      .db("child-adoption-system")
+      .collection("allAgency");
+
     // verify Admin function
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -82,6 +86,21 @@ async function run() {
       const childType = req.params.childType;
       const query = { childType: childType };
       const result = await childCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.get all child show ui
+    app.get("/allChilds", verifyJWT, verifyAdmin, async (req, res) => {
+      const query = {};
+      const result = await childCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete child use id
+    app.delete("/allChilds/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await childCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -180,6 +199,30 @@ async function run() {
       );
       res.send(result);
     });
+
+    // app.post agency store Database
+    app.post("/agency", verifyJWT, async (req, res) => {
+      const agency = req.body;
+      const result = await agencyCollection.insertOne(agency);
+      res.send(result);
+    });
+    // app.get agency store Database
+    app.get("/allAgency", async (req, res) => {
+      const query = {};
+      const result = await agencyCollection.find(query).toArray();
+      res.send(result);
+    });
+
+
+      // delete child use id
+      app.delete("/allAgency/:id", verifyJWT, verifyAdmin, async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await agencyCollection.deleteOne(query);
+        res.send(result);
+      });
+  
+
   } finally {
     //
   }
