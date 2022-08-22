@@ -213,16 +213,21 @@ async function run() {
       res.send(result);
     });
 
+    // app.get agency store Database
+    app.get("/agency/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await agencyCollection.findOne(query);
+      res.send(result);
+    });
 
-      // delete child use id
-      app.delete("/allAgency/:id", verifyJWT, verifyAdmin, async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const result = await agencyCollection.deleteOne(query);
-        res.send(result);
-      });
-  
-
+    // delete child use id
+    app.delete("/allAgency/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await agencyCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
     //
   }
