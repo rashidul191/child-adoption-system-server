@@ -6,11 +6,14 @@ require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
 
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 // middleware
 app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASSWORD}@cluster0.1pttxds.mongodb.net/?retryWrites=true&w=majority`;
+
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -54,6 +57,10 @@ async function run() {
       .db("child-adoption-system")
       .collection("allAgency");
 
+    const paymentCollection = client
+      .db("child-adoption-system")
+      .collection("payment");
+
     // verify Admin function
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -65,6 +72,31 @@ async function run() {
         res.status(403).send({ message: "forbidden" });
       }
     };
+
+    // payment system card
+    app.post("/create-payment-intent", async (req, res) => {
+      const cardAmount = req.body.amount;
+      const amount = cardAmount * 100;
+      // console.log(amount);
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+    app.post("/donation", async (req, res) => {
+      const donation = req.body.donation;
+      const result = await paymentCollection.insertOne(donation);
+      res.send(result);
+    });
+
+    app.get("/allDonation", verifyJWT, async (req, res) => {
+      const query = {};
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // app.post method, child info store database
     app.post("/childInsert", async (req, res) => {
