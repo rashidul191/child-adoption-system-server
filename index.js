@@ -66,7 +66,7 @@ async function run() {
       const requester = req.decoded.email;
       const query = { email: requester };
       const requesterAccount = await userCollection.findOne(query);
-      if (requesterAccount.role === "admin") {
+      if (requesterAccount.role === "admin" || "employer") {
         next();
       } else {
         res.status(403).send({ message: "forbidden" });
@@ -159,7 +159,7 @@ async function run() {
     });
 
     // app.get all user show to ui
-    app.get("/allUsers", verifyJWT, async (req, res) => {
+    app.get("/allUsers", async (req, res) => {
       const query = {};
       const result = await userCollection.find(query).toArray();
       res.send(result);
@@ -205,6 +205,15 @@ async function run() {
       const user = await userCollection.findOne(query);
       const isAdmin = user.role === "admin";
       res.send({ admin: isAdmin });
+    });
+
+    // app.get check employer find one
+    app.get("/employer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      const isEmployer = user.role === "employer";
+      res.send({ employer: isEmployer });
     });
 
     // app.delete user on database and show ui Admin Dashboard
