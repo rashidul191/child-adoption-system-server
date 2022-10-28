@@ -60,6 +60,12 @@ async function run() {
     const paymentCollection = client
       .db("child-adoption-system")
       .collection("payment");
+    const blogsCollection = client
+      .db("child-adoption-system")
+      .collection("blogs");
+    const childApplyCollection = client
+      .db("child-adoption-system")
+      .collection("child-apply");
 
     // verify Admin function
     const verifyAdmin = async (req, res, next) => {
@@ -139,7 +145,6 @@ async function run() {
     // app.put method, store all user in database
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
-      // console.log("user email : ",email);
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
@@ -159,7 +164,7 @@ async function run() {
     });
 
     // app.get all user show to ui
-    app.get("/allUsers", async (req, res) => {
+    app.get("/allUsers", verifyJWT, verifyAdmin, async (req, res) => {
       const query = {};
       const result = await userCollection.find(query).toArray();
       res.send(result);
@@ -254,7 +259,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.get agency store Database
+    // app.get agency info
     app.get("/agency/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -267,6 +272,51 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await agencyCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // app.post blog
+    app.post("/blogs", verifyJWT, async (req, res) => {
+      const blogs = req.body;
+      const result = await blogsCollection.insertOne(blogs);
+      res.send(result);
+    });
+
+    // app.get blog show display
+    app.get("/allBlogs", async (req, res) => {
+      const query = {};
+      const result = await blogsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.get blog details
+    app.get("/blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await blogsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // delete child use id
+    app.delete("/allBlogs/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await blogsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // app.post child apply form
+    app.post("/child-apply", verifyJWT, async (req, res) => {
+      const childApply = req.body;
+      const result = await childApplyCollection.insertOne(childApply);
+      res.send(result);
+    });
+
+    // app.get individual child application show to ui
+    app.get("/child-apply", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await childApplyCollection.find(query).toArray();
       res.send(result);
     });
   } finally {
