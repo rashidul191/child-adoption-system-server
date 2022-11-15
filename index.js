@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
+const { application } = require("express");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -169,6 +170,14 @@ async function run() {
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
+
+    // app.get all user show to ui
+    app.get("/allMember", async (req, res) => {
+      const query = {};
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // app.get individual user show to ui
     app.get("/user", verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -317,6 +326,24 @@ async function run() {
       const email = req.query.email;
       const query = { email: email };
       const result = await childApplyCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.get individual child application show to ui
+    app.get("/application", verifyJWT, verifyAdmin, async (req, res) => {
+      const query = {};
+      const result = await childApplyCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.put make employer
+    app.put("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { role: "approved" },
+      };
+      const result = await childApplyCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
   } finally {
