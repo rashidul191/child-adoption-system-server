@@ -336,7 +336,15 @@ async function run() {
       res.send(result);
     });
 
-    // app.put make employer
+    // app.put application view
+    app.get("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await childApplyCollection.findOne(filter);
+      res.send(result);
+    });
+
+    // app.put application Approved
     app.put("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -344,6 +352,14 @@ async function run() {
         $set: { role: "approved" },
       };
       const result = await childApplyCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // app.put application delete
+    app.delete("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await childApplyCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
