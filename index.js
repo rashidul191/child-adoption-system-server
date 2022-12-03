@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const { application } = require("express");
+const errorHandle = require("./middleware/errorHandle");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -372,6 +373,9 @@ run().catch(console.dir);
 app.get("/", (req, res) => {
   res.send("Running Child-Adoption-System server side");
 });
+
+// global error handle function
+app.use(errorHandle);
 
 // listen port
 app.listen(port, () => {
