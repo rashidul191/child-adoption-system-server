@@ -1,19 +1,23 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const { application } = require("express");
 const errorHandle = require("./middleware/errorHandle");
-require("dotenv").config();
+const checkEligibilityRouter = require("./routers/v1/checkEligibility.router");
+const { connectToServer } = require("./utils/dbConnect");
 const port = process.env.PORT || 5000;
 const app = express();
 
+// payment secret key .env
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middleware
 app.use(cors());
 app.use(express.json());
 
+// data base connection
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASSWORD}@cluster0.1pttxds.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -68,6 +72,9 @@ async function run() {
     const childApplyCollection = client
       .db("child-adoption-system")
       .collection("child-apply");
+    const checkEligibleCollection = client
+      .db("child-adoption-system")
+      .collection("check-eligible");
 
     // verify Admin function
     const verifyAdmin = async (req, res, next) => {
@@ -81,6 +88,7 @@ async function run() {
       }
     };
 
+    // payment api
     // payment system card
     app.post("/create-payment-intent", async (req, res) => {
       const cardAmount = req.body.amount;
@@ -106,6 +114,7 @@ async function run() {
       res.send(result);
     });
 
+    // child api
     // app.post method, child info store database
     app.post("/childInsert", async (req, res) => {
       const child = req.body;
@@ -144,6 +153,7 @@ async function run() {
       res.send(result);
     });
 
+    // user api
     // app.put method, store all user in database
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -159,7 +169,7 @@ async function run() {
           email: email,
         },
         process.env.ACCESS_SECRET_KEY,
-        { expiresIn: "1d" }
+        { expiresIn: "30d" }
         // { expiresIn: "1m" }
       );
       res.send({ result, token });
@@ -239,6 +249,7 @@ async function run() {
       res.send(result);
     });
 
+    // review api
     // app.patch user review store database.
     app.patch("/reviews/:email", async (req, res) => {
       const review = req.body;
@@ -256,6 +267,7 @@ async function run() {
       res.send(result);
     });
 
+    // agency api
     // app.post agency store Database
     app.post("/agency", verifyJWT, async (req, res) => {
       const agency = req.body;
@@ -285,6 +297,7 @@ async function run() {
       res.send(result);
     });
 
+    // blogs api
     // app.post blog
     app.post("/blogs", verifyJWT, async (req, res) => {
       const blogs = req.body;
@@ -315,6 +328,7 @@ async function run() {
       res.send(result);
     });
 
+    // child apply api
     // app.post child apply form
     app.post("/child-apply", verifyJWT, async (req, res) => {
       const childApply = req.body;
@@ -363,11 +377,47 @@ async function run() {
       const result = await childApplyCollection.deleteOne(query);
       res.send(result);
     });
+
+    // check eligible api
+    app.put("/check-eligible/:email", verifyJWT, async (req, res) => {
+      const checkEligibilityResult = req.body;
+      const { email } = req.params;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: checkEligibilityResult,
+      };
+      const result = await checkEligibleCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/check-eligibility", async (req, res) => {
+      const { email } = req.query;
+      const query = { email: email };
+      const result = await checkEligibleCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
     //
   }
 }
 run().catch(console.dir);
+
+// connectToServer((err) => {
+//   if (!err) {
+//     app.listen(port, () => {
+//       console.log("listen port: ", port);
+//     });
+//   } else {
+//     console.log("Error Find :", err);
+//   }
+// });
+
+// app.use("/api/v1/check-eligibility", checkEligibilityRouter);
 
 // get response server root path
 app.get("/", (req, res) => {
