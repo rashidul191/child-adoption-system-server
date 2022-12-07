@@ -144,6 +144,12 @@ async function run() {
       const result = await childCollection.find(query).toArray();
       res.send(result);
     });
+    // app.get all child Length show to home page
+    app.get("/allChildLength", async (req, res) => {
+      const query = {};
+      const result = await childCollection.countDocuments(query);
+      res.json(result);
+    });
 
     // delete child use id
     app.delete("/allChilds/:id", verifyJWT, verifyAdmin, async (req, res) => {
@@ -180,6 +186,13 @@ async function run() {
       const query = {};
       const result = await userCollection.find(query).toArray();
       res.send(result);
+    });
+
+    // app.get all user Length show to home page
+    app.get("/allUsersLength", async (req, res) => {
+      const query = {};
+      const result = await userCollection.countDocuments(query);
+      res.json(result);
     });
 
     // app.get all user show to ui
@@ -251,7 +264,7 @@ async function run() {
 
     // review api
     // app.patch user review store database.
-    app.patch("/reviews/:email", async (req, res) => {
+    app.put("/reviews/:email", async (req, res) => {
       const review = req.body;
       const email = req.params.email;
       const filter = { email: email };
@@ -265,6 +278,12 @@ async function run() {
         options
       );
       res.send(result);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const review = await reviewCollection.find(query).toArray();
+      res.send(review);
     });
 
     // agency api
