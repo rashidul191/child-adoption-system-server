@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rashidul Islam and Maruf Hossan",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,6 +18,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.8.1",
     "nodemon": "^2.0.20",
-    "stripe": "^10.12.0"
+    "stripe": "^10.12.0",
+    "util": "^0.12.5"
   }
 }

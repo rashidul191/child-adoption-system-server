@@ -5,7 +5,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const { application } = require("express");
 const errorHandle = require("./middleware/errorHandle");
-const checkEligibilityRouter = require("./routers/v1/checkEligibility.router");
 const { connectToServer } = require("./utils/dbConnect");
 const port = process.env.PORT || 5000;
 const app = express();
@@ -17,9 +16,18 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 app.use(cors());
 app.use(express.json());
 
+const agencyRouter = require("./routers/v1/agency.router");
+const userRouter = require("./routers/v1/user.router");
+const childRouter = require("./routers/v1/child.router");
+const reviewRouter = require("./routers/v1/review.router");
+const blogRouter = require("./routers/v1/blog.router");
+const paymentRouter = require("./routers/v1/payment.router");
+const childApplyRouter = require("./routers/v1/childApply.router");
+const checkEligibilityRouter = require("./routers/v1/checkEligibility.router");
+
+/*
 // data base connection
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASSWORD}@cluster0.1pttxds.mongodb.net/?retryWrites=true&w=majority`;
-
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -40,7 +48,8 @@ function verifyJWT(req, res, next) {
     }
     req.decoded = decoded;
     next();
-  });
+  }
+  );
 }
 
 async function run() {
@@ -66,17 +75,20 @@ async function run() {
     const paymentCollection = client
       .db("child-adoption-system")
       .collection("payment");
+
     const blogsCollection = client
       .db("child-adoption-system")
       .collection("blogs");
+
     const childApplyCollection = client
       .db("child-adoption-system")
       .collection("child-apply");
+
     const checkEligibleCollection = client
       .db("child-adoption-system")
       .collection("check-eligible");
 
-    // verify Admin function
+    // verify Admin, employer function or authorization admin, employer
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
       const query = { email: requester };
@@ -88,8 +100,8 @@ async function run() {
       }
     };
 
-    // payment api
-    // payment system card
+    // payment api == done
+    // payment system stripe == done
     app.post("/create-payment-intent", async (req, res) => {
       const cardAmount = req.body.amount;
       const amount = cardAmount * 100;
@@ -102,27 +114,43 @@ async function run() {
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
+    // app.post donation == done
     app.post("/donation", async (req, res) => {
       const donation = req.body.donation;
       const result = await paymentCollection.insertOne(donation);
       res.send(result);
     });
 
-    app.get("/allDonation", verifyJWT, async (req, res) => {
+    // app.get donation show ui == done
+    app.get("/allDonation", verifyJWT, verifyAdmin, async (req, res) => {
       const query = {};
       const result = await paymentCollection.find(query).toArray();
       res.send(result);
     });
 
-    // child api
-    // app.post method, child info store database
-    app.post("/childInsert", async (req, res) => {
+    // child api == done
+    // app.post method, child info store database == done
+    app.post("/childInsert", verifyJWT, verifyAdmin async (req, res) => {
       const child = req.body;
       const result = await childCollection.insertOne(child);
       res.send(result);
     });
 
-    // app.get method, show one child to id
+    // app.get all child show ui == done
+    app.get("/allChilds", verifyJWT, verifyAdmin, async (req, res) => {
+      const query = {};
+      const result = await childCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // app.get all child Length show to home page == done
+    app.get("/allChildLength", async (req, res) => {
+      const query = {};
+      const result = await childCollection.countDocuments(query);
+      res.json(result);
+    });
+
+    // app.get method, show one child to id == done
     app.get("/child/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -130,28 +158,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.get method, show child types to ui
-    app.get("/childs/:childType", async (req, res) => {
-      const childType = req.params.childType;
-      const query = { childType: childType };
-      const result = await childCollection.find(query).toArray();
-      res.send(result);
-    });
-
-    // app.get all child show ui
-    app.get("/allChilds", verifyJWT, verifyAdmin, async (req, res) => {
-      const query = {};
-      const result = await childCollection.find(query).toArray();
-      res.send(result);
-    });
-    // app.get all child Length show to home page
-    app.get("/allChildLength", async (req, res) => {
-      const query = {};
-      const result = await childCollection.countDocuments(query);
-      res.json(result);
-    });
-
-    // delete child use id
+    // delete child use id == done
     app.delete("/allChilds/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -159,8 +166,16 @@ async function run() {
       res.send(result);
     });
 
-    // user api
-    // app.put method, store all user in database
+     // app.get method, show child types to ui == done
+    app.get("/childs/:childType", async (req, res) => {
+      const childType = req.params.childType;
+      const query = { childType: childType };
+      const result = await childCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // user api == done
+    // app.put method, store all user in database == done
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
@@ -169,6 +184,7 @@ async function run() {
         $set: req.body,
       };
       const result = await userCollection.updateOne(filter, updateDoc, options);
+
       // generate jwt sign token(64bit)
       const token = jwt.sign(
         {
@@ -181,28 +197,28 @@ async function run() {
       res.send({ result, token });
     });
 
-    // app.get all user show to ui
+    
+    // app.get all user show to ui == done
     app.get("/allUsers", verifyJWT, verifyAdmin, async (req, res) => {
-      const query = {};
-      const result = await userCollection.find(query).toArray();
+      const result = await userCollection.find({}).toArray();
       res.send(result);
     });
 
-    // app.get all user Length show to home page
+    // app.get all user Length show to home page == done
     app.get("/allUsersLength", async (req, res) => {
       const query = {};
       const result = await userCollection.countDocuments(query);
       res.json(result);
     });
 
-    // app.get all user show to ui
+    // app.get all user show to ui == done
     app.get("/allMember", async (req, res) => {
       const query = {};
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
 
-    // app.get individual user show to ui
+    // app.get individual user show to ui == done
     app.get("/user", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -210,7 +226,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.put make admin
+    // app.put make admin == done
     app.put("/users/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
@@ -220,9 +236,9 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    // app.put make employer
-    app.put(
-      "/users/employer/:email",
+
+    // app.put make employer == done
+    app.put("/users/employer/:email",
       verifyJWT,
       verifyAdmin,
       async (req, res) => {
@@ -236,7 +252,7 @@ async function run() {
       }
     );
 
-    // app.get check admin find one
+    // app.get check admin find one == done
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -245,7 +261,7 @@ async function run() {
       res.send({ admin: isAdmin });
     });
 
-    // app.get check employer find one
+    // app.get check employer find one == done
     app.get("/employer/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -254,7 +270,7 @@ async function run() {
       res.send({ employer: isEmployer });
     });
 
-    // app.delete user on database and show ui Admin Dashboard
+    // app.delete user on database and show ui Admin Dashboard == done
     app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -262,9 +278,9 @@ async function run() {
       res.send(result);
     });
 
-    // review api
-    // app.patch user review store database.
-    app.put("/reviews/:email", async (req, res) => {
+    // review api == done
+    // app.patch user review store database == done
+    app.put("/reviews/:email", verifyJWT async (req, res) => {
       const review = req.body;
       const email = req.params.email;
       const filter = { email: email };
@@ -280,27 +296,28 @@ async function run() {
       res.send(result);
     });
 
+    // get review show ui == done
     app.get("/reviews", async (req, res) => {
       const query = {};
       const review = await reviewCollection.find(query).toArray();
       res.send(review);
     });
 
-    // agency api
-    // app.post agency store Database
-    app.post("/agency", verifyJWT, async (req, res) => {
+    // agency api == done
+    // app.post agency store Database == done
+    app.post("/agency", verifyJWT, verifyAdmin async (req, res) => {
       const agency = req.body;
       const result = await agencyCollection.insertOne(agency);
       res.send(result);
     });
-    // app.get agency store Database
+    // app.get agency store Database == done
     app.get("/allAgency", async (req, res) => {
       const query = {};
       const result = await agencyCollection.find(query).toArray();
       res.send(result);
     });
 
-    // app.get agency info
+    // app.get agency info == done
     app.get("/agency/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -308,7 +325,7 @@ async function run() {
       res.send(result);
     });
 
-    // delete child use id
+    // delete  agency use id == done
     app.delete("/allAgency/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -316,22 +333,22 @@ async function run() {
       res.send(result);
     });
 
-    // blogs api
-    // app.post blog
-    app.post("/blogs", verifyJWT, async (req, res) => {
+    // blogs api == done
+    // app.post blog == done
+    app.post("/blogs", verifyJWT, verifyAdmin async (req, res) => {
       const blogs = req.body;
       const result = await blogsCollection.insertOne(blogs);
       res.send(result);
     });
 
-    // app.get blog show display
+    // app.get blog show display == done
     app.get("/allBlogs", async (req, res) => {
       const query = {};
       const result = await blogsCollection.find(query).toArray();
       res.send(result);
     });
 
-    // app.get blog details
+    // app.get blog details == done
     app.get("/blog/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -339,7 +356,7 @@ async function run() {
       res.send(result);
     });
 
-    // delete child use id
+    // delete child use id == done
     app.delete("/allBlogs/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -347,15 +364,15 @@ async function run() {
       res.send(result);
     });
 
-    // child apply api
-    // app.post child apply form
+    // child apply api == done
+    // app.post child apply form == done
     app.post("/child-apply", verifyJWT, async (req, res) => {
       const childApply = req.body;
       const result = await childApplyCollection.insertOne(childApply);
       res.send(result);
     });
 
-    // app.get individual child application show to ui
+    // app.get individual child application show to ui == done
     app.get("/child-apply", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -363,14 +380,14 @@ async function run() {
       res.send(result);
     });
 
-    // app.get individual child application show to ui
+    // app.get individual child application show to ui == done
     app.get("/application", verifyJWT, verifyAdmin, async (req, res) => {
       const query = {};
       const result = await childApplyCollection.find(query).toArray();
       res.send(result);
     });
 
-    // app.put application view
+    // app.get application view == done
     app.get("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -378,7 +395,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.put application Approved
+    // app.put application Approved == done
     app.put("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -389,7 +406,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.put application delete
+    // app.delete application delete == done
     app.delete("/application/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -397,7 +414,8 @@ async function run() {
       res.send(result);
     });
 
-    // check eligible api
+    // check eligible api == done
+    // app.put approve eligible apply test == done
     app.put("/check-eligible/:email", verifyJWT, async (req, res) => {
       const checkEligibilityResult = req.body;
       const { email } = req.params;
@@ -414,39 +432,52 @@ async function run() {
       res.send(result);
     });
 
+    // app.get eligible apply test  == done
     app.get("/check-eligibility", async (req, res) => {
       const { email } = req.query;
       const query = { email: email };
       const result = await checkEligibleCollection.findOne(query);
       res.send(result);
     });
+
   } finally {
     //
   }
 }
-run().catch(console.dir);
+run().catch(console.dir); 
 
-// connectToServer((err) => {
-//   if (!err) {
-//     app.listen(port, () => {
-//       console.log("listen port: ", port);
-//     });
-//   } else {
-//     console.log("Error Find :", err);
-//   }
-// });
-
-// app.use("/api/v1/check-eligibility", checkEligibilityRouter);
+*/
+// server
+connectToServer((err) => {
+  if (!err) {
+    app.listen(port, () => {
+      console.log("listen port: ", port);
+    });
+  } else {
+    console.log("Error Find :", err);
+  }
+});
 
 // get response server root path
 app.get("/", (req, res) => {
   res.send("Running Child-Adoption-System server side");
 });
 
+app.use("/api/v1/agency", agencyRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/child", childRouter);
+app.use("/api/v1/review", reviewRouter);
+app.use("/api/v1/blog", blogRouter);
+app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/childApply", childApplyRouter);
+app.use("/api/v1/checkEligibility", checkEligibilityRouter);
+
 // global error handle function
 app.use(errorHandle);
 
 // listen port
-app.listen(port, () => {
-  console.log("listen port: ", port);
-});
+// app.listen(port, () => {
+//   console.log("listen port: ", port);
+// });
+
+module.exports = app;

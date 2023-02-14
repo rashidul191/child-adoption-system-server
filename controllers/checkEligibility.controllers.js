@@ -1,40 +1,40 @@
-// const { getDb } = require("../utils/dbConnect");
+const {
+  resStatusSuccess,
+  resStatusError,
+  resStatusErrorIf,
+} = require("../middleware/ResStatus");
+const {
+  getCheckEligibilityForUserService,
+  putCheckEligibilityService,
+} = require("../services/checkEligibility.service");
 
-// // get check eligibility
-// module.exports.getCheckEligibilityForUser = async (req, res, next) => {
-//   try {
-//     const db = getDb();
-//     const { email } = req.query;
-//     const query = { email: email };
-//     const result = await db.collection("check-eligible").find(query).toArray();
-//     res.send(result);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+// get check eligibility
+module.exports.getCheckEligibilityForUser = async (req, res, next) => {
+  try {
+    const getCheckEligibilityForUser = await getCheckEligibilityForUserService(
+      req
+    );
 
-// // update check eligibility
-// module.exports.patchCheckEligibility = async (req, res, next) => {
-//   try {
-//     const db = getDb();
-//     const checkEligibilityResult = req.body;
-//     // console.log(checkEligibilityResult);
-//     const filter = { email: req.params.email };
+    if (!getCheckEligibilityForUser) {
+      resStatusErrorIf(res, "get check eligibility");
+    }
+    resStatusSuccess(res, "get check eligibility", getCheckEligibilityForUser);
+  } catch (error) {
+    next(error);
+    resStatusError(res, "get check eligibility", error);
+  }
+};
 
-//     console.log(checkEligibilityResult);
-//     console.log(filter);
-//     // const options = { upsert: true };
-//     // const updateDoc = {
-//     //   $set: checkEligibilityResult,
-//     // };
-//     // const result = await db
-//     //   .collection("check-eligible")
-//     //       .updateOne(filter, updateDoc, options);
-
-//     //   res.send(result);
-
-//     res.json("success");
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+// update check eligibility
+module.exports.putCheckEligibility = async (req, res, next) => {
+  try {
+    const putCheckEligibility = await putCheckEligibilityService(req);
+    if (!putCheckEligibility.acknowledged) {
+      resStatusErrorIf(res, "put check eligibility");
+    }
+    resStatusSuccess(res, "put check eligibility", putCheckEligibility);
+  } catch (error) {
+    next(error);
+    resStatusError(res, "put check eligibility", error);
+  }
+};
