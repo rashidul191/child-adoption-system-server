@@ -19,6 +19,11 @@ module.exports.getUserService = async () => {
   const result = await db.collection("users").find({}).toArray();
   return result;
 };
+module.exports.getAllUserService = async () => {
+  const db = getDb();
+  const result = await db.collection("users").find({}).toArray();
+  return result;
+};
 
 module.exports.getUserWithEmailService = async (req) => {
   const db = getDb();

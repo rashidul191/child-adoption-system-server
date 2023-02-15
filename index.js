@@ -24,6 +24,7 @@ const blogRouter = require("./routers/v1/blog.router");
 const paymentRouter = require("./routers/v1/payment.router");
 const childApplyRouter = require("./routers/v1/childApply.router");
 const checkEligibilityRouter = require("./routers/v1/checkEligibility.router");
+const subscriptionRouter = require("./routers/v1/subscription.router");
 
 /*
 // data base connection
@@ -471,6 +472,7 @@ app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/childApply", childApplyRouter);
 app.use("/api/v1/checkEligibility", checkEligibilityRouter);
+app.use("/api/v1/subscription", subscriptionRouter);
 
 // global error handle function
 app.use(errorHandle);

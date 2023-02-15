@@ -8,6 +8,7 @@ const { generateToken } = require("../utils/token");
 const {
   putUserService,
   getUserService,
+  getAllUserService,
   getUserWithEmailService,
   getUserLengthService,
   putMakeAdminService,
@@ -38,6 +39,18 @@ module.exports.getUser = async (req, res, next) => {
     resStatusSuccess(res, "get user", getUser);
   } catch (error) {
     resStatusError(res, "get user", error);
+  }
+};
+
+module.exports.getAllUser = async (req, res, next) => {
+  try {
+    const getAllUser = await getAllUserService();
+    if (!getAllUser) {
+      resStatusErrorIf(res, "get all users");
+    }
+    resStatusSuccess(res, "get all users", getAllUser);
+  } catch (error) {
+    resStatusError(res, "get all users", error);
   }
 };
 

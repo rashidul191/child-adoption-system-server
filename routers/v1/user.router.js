@@ -11,6 +11,7 @@ router
   .delete(verifyJWT, authorization, userController.deleteUser);
 
 router.route("/").get(verifyJWT, authorization, userController.getUser);
+router.route("/allUser").get(userController.getAllUser);
 
 router.route("/email").get(userController.getUserWithEmail);
 router
