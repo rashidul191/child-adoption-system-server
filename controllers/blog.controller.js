@@ -20,6 +20,7 @@ module.exports.getBlog = async (req, res, next) => {
 
 module.exports.postBlog = async (req, res, next) => {
   try {
+
     const postBlog = await postBlogService(req);
     if (!postBlog.insertedId) {
       resStatusError(res, "post blog");

@@ -11,6 +11,7 @@ module.exports.verifyJWT = async (req, res, next) => {
         error: "UnAuthorized access",
       });
     }
+
     jwt?.verify(
       token,
       process.env.ACCESS_SECRET_KEY,
@@ -19,7 +20,7 @@ module.exports.verifyJWT = async (req, res, next) => {
           return res.status(403).json({
             status: "fail",
             message: "Forbidden access",
-            error: error.message,
+            error: error?.message,
           });
         }
         req.user = decoded;
@@ -31,7 +32,7 @@ module.exports.verifyJWT = async (req, res, next) => {
     return res.status(401).json({
       status: "fail",
       message: "Invalid token",
-      error: error.message,
+      error: error?.message,
     });
   }
 };

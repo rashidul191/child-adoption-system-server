@@ -1,4 +1,5 @@
 const { getDb } = require("../utils/dbConnect");
+const { sendMailWithGmail } = require("../utils/sendEmail");
 
 module.exports.putSubscriptionService = async (req) => {
   const db = getDb();
@@ -11,6 +12,19 @@ module.exports.putSubscriptionService = async (req) => {
   const result = await db
     .collection("subscription-email")
     .updateOne(filter, updateDoc, options);
+
+  // send mail fo subscription
+  const mailData = {
+    to: [email],
+    subject: "Subscribe our new letter to stay updated every moment",
+    text: `Subscribe our new letter to stay updated every moment`,
+    html: `
+      <div>
+         <p>Subscribe our new letter to stay updated every moment</p>
+      </div>
+      `,
+  };
+  await sendMailWithGmail(mailData);
   return result;
 };
 

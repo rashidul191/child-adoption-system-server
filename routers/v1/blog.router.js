@@ -10,6 +10,7 @@ router
   .route("/")
   .get(blogController.getBlog)
   .post(verifyJWT, authorization, blogController.postBlog);
+  //.post(blogController.postBlog);
 router
   .route("/:id")
   .get(blogController.getBlogById)

@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../utils/dbConnect");
+const { sendMailWithGmail } = require("../utils/sendEmail");
 
 module.exports.getBlogService = async () => {
   const db = getDb();
@@ -9,7 +10,31 @@ module.exports.getBlogService = async () => {
 
 module.exports.postBlogService = async (req) => {
   const db = getDb();
+  const userMail = await db.collection("users").find({}).toArray();
+  const subscriptionMail = await db
+    .collection("subscription-email")
+    .find({})
+    .toArray();
+  let userCurrentMail = [];
+  for (mail of userMail) {
+    userCurrentMail.push(mail.email);
+  }
+  for (subMail of subscriptionMail) {
+    userCurrentMail.push(subMail.email);
+  }
   const result = await db.collection("blogs").insertOne(req.body);
+  const mailData = {
+    to: userCurrentMail,
+    subject: `${req.body.blogTitle}`,
+    text: `${req.body.blogTitle}`,
+    html: `
+      <div>
+        <img src="${req.body.blogImg}" alt="${req.body.blogTitle}" />
+        <h1> ${req.body.blogTitle} </h1>
+      </div>
+      `,
+  };
+  await sendMailWithGmail(mailData);
   return result;
 };
 
@@ -27,4 +52,4 @@ module.exports.deleteBlogByIdService = async (req) => {
   const query = { _id: ObjectId(id) };
   const result = await db.collection("blogs").deleteOne(query);
   return result;
-}
+};

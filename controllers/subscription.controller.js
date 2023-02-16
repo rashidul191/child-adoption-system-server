@@ -11,7 +11,7 @@ const {
 module.exports.putSubscription = async (req, res, next) => {
   try {
     const putSubscription = await putSubscriptionService(req);
-    if (!putSubscription.acknowledged) {
+     if (!putSubscription.acknowledged) {
       resStatusErrorIf(res, "put subscription");
     }
     resStatusSuccess(res, "put subscription", putSubscription);
