@@ -20,7 +20,8 @@ module.exports.putSubscriptionService = async (req) => {
     text: `Subscribe our new letter to stay updated every moment`,
     html: `
       <div>
-         <p>Subscribe our new letter to stay updated every moment</p>
+         <p>Thanks for Subscript our blog</p>
+         <p>Now you will get our new letter updates every moment</p>
       </div>
       `,
   };

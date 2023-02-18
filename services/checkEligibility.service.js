@@ -30,10 +30,15 @@ module.exports.putCheckEligibilityService = async (req) => {
       subject: `Child Adoption System Ador - Apply Eligibility Score`,
       text: `Child Adoption System Ador - Apply Eligibility Score`,
       html: `
-    <div>  
-    <p>Your Apply Eligibility score is : </p>
-     <h1 style="color: green"> Yes: ${allowValue.length * 10} %</h1>
-     <h1 style="color: red"> No: ${notAllowValue.length * 10} %</h1>     
+    <div>
+      <p>Your Apply Eligibility score is : </p>
+      <h1 style="color: green"> Yes: ${allowValue.length * 10} %</h1>
+      <h1 style="color: red"> No: ${notAllowValue.length * 10} %</h1>     
+     ${
+       allowValue.length * 10 > 50
+         ? '  <div>  <h3  style="color: green" > Congratulation </h3> <p>You are Eligibility for Child Apply</p></div> '
+         : '<h1 style="color: red"> You are Not Eligibility for Child Apply</h1>'
+     }
     </div>
     `,
     };
