@@ -29,8 +29,8 @@ module.exports.postBlogService = async (req) => {
     text: `${req.body.blogTitle}`,
     html: `
       <div>
-        <img src="${req.body.blogImg}" alt="${req.body.blogTitle}" />
-        <h1> ${req.body.blogTitle} </h1>
+        <img width={200} src="${req.body.blogImg}" alt="${req.body.blogTitle}" />
+        <h1><a href='https://child-adoption-system.web.app/blog/${req.body.blogTitle}/${result.id}'> ${req.body.blogTitle}</a> </h1>
       </div>
       `,
   };

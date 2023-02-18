@@ -47,7 +47,7 @@ module.exports.sendMailWithGmail = async (data) => {
             <div>
                 <h2 style="text-align: center"> Child-Adoption-System-Ador </h2>
                 <p>As-salamu alaykum</p>
-                <p>Dear, <span style="color: gray">${toMail}</span></p>
+                <p>Dear, <span style="color: gray">User</span></p>
             </div>
             <div style="text-align: center">${data.html}</div>
             <p> visit our site click here: <a href='https://child-adoption-system.web.app'>Child-Adoption-System-Ador</a></p>
