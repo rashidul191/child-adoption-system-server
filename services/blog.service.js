@@ -53,3 +53,10 @@ module.exports.deleteBlogByIdService = async (req) => {
   const result = await db.collection("blogs").deleteOne(query);
   return result;
 };
+
+// module.exports.postBlogWithIdService = async (req) => {
+//   const db = getDb();
+//   const comment = req.body;
+//   const result = await db.collection("user_comments").insertOne(comment);
+//   return result;
+// };

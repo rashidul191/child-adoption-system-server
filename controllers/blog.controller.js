@@ -1,9 +1,14 @@
-const { resStatusError, resStatusSuccess } = require("../middleware/ResStatus");
+const {
+  resStatusError,
+  resStatusSuccess,
+  resStatusErrorIf,
+} = require("../middleware/ResStatus");
 const {
   getBlogService,
   postBlogService,
   getBlogByIdService,
   deleteBlogByIdService,
+  postBlogWithIdService,
 } = require("../services/blog.service");
 
 module.exports.getBlog = async (req, res, next) => {
@@ -20,7 +25,6 @@ module.exports.getBlog = async (req, res, next) => {
 
 module.exports.postBlog = async (req, res, next) => {
   try {
-
     const postBlog = await postBlogService(req);
     if (!postBlog.insertedId) {
       resStatusError(res, "post blog");
@@ -54,3 +58,15 @@ module.exports.deleteBlogById = async (req, res, next) => {
     resStatusError(res, "delete blog", error);
   }
 };
+
+// module.exports.postBlogWithId = async (req, res, next) => {
+//   try {
+//     const postBlogWithId = await postBlogWithIdService(req);
+//     if (!postBlogService.insertedId) {
+//       resStatusErrorIf(res, "post user comment");
+//     }
+//     resStatusSuccess(res, "post user comment", postBlogWithId);
+//   } catch (error) {
+//     resStatusError(res, "post user comment", error);
+//   }
+// };

@@ -7,13 +7,15 @@ const { verifyJWT } = require("../../middleware/verifyToken");
 const router = express.Router();
 
 router
-  .route("/")
-  .get(blogController.getBlog)
-  .post(verifyJWT, authorization, blogController.postBlog);
-  //.post(blogController.postBlog);
-router
   .route("/:id")
   .get(blogController.getBlogById)
   .delete(verifyJWT, authorization, blogController.deleteBlogById);
+  // .post(blogController.postBlogWithId)
+
+router
+  .route("/")
+  .get(blogController.getBlog)
+  .post(verifyJWT, authorization, blogController.postBlog);
+
 
 module.exports = router;
