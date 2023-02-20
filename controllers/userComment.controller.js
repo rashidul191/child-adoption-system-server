@@ -6,6 +6,7 @@ const {
 const {
   postUserCommentService,
   getUserCommentService,
+  deleteCommentService,
 } = require("../services/userComment.service");
 
 module.exports.postUserComment = async (req, res, next) => {
@@ -29,5 +30,17 @@ module.exports.getUserComment = async (req, res, next) => {
     resStatusSuccess(res, "get user comment", getUserComment);
   } catch (error) {
     resStatusError(res, "get user comment", error);
+  }
+};
+
+module.exports.deleteComment = async (req, res, next) => {
+  try {
+    const deleteComment = await deleteCommentService(req);
+    if (!deleteComment.deletedCount) {
+      resStatusErrorIf(res, "get user comment");
+    }
+    resStatusSuccess(res, "get user comment", deleteComment);
+  } catch (error) {
+    resStatusError(res, "delete user comment", error);
   }
 };
