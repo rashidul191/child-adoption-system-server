@@ -1,9 +1,10 @@
 const express = require("express");
 const userCommentController = require("../../controllers/userComment.controller");
+const { verifyJWT } = require("../../middleware/verifyToken");
 
 const router = express.Router();
 
-router.route("/:id").delete(userCommentController.deleteComment)
+router.route("/:id").delete(verifyJWT, userCommentController.deleteComment);
 
 router
   .route("/")
