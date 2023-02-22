@@ -27,8 +27,8 @@ module.exports.putCheckEligibilityService = async (req) => {
     // send mail
     const mailData = {
       to: [email],
-      subject: `Child Adoption System Ador - Adoption ligible Score`,
-      text: `Child Adoption System Ador - Adoption Eligible Score`,
+      subject: ` Adoption Eligible Score`,
+      text: ` Adoption Eligible Score`,
       html: `
     <div>
       <p> Your adoption eligible score is : </p>
@@ -36,7 +36,7 @@ module.exports.putCheckEligibilityService = async (req) => {
       <h1 style="color: red"> No: ${notAllowValue.length * 10} %</h1>     
      ${
        allowValue.length * 10 > 50
-         ? '  <div>  <h3  style="color: green" > Congratulation </h3> <p>You are Eligibility for Child Apply</p></div> '
+         ? '  <div>  <h3  style="color: green" > Congratulation </h3> <p>You are Eligible for Child Adoption</p></div> '
          : '<h1 style="color: red"> You are not Eligible for Child Adoption</h1>'
      }
     </div>

@@ -31,7 +31,7 @@ module.exports.childLength = async (req, res, next) => {
     if (!childLength) {
       resStatusError(res, "get child length");
     }
-    resStatusSuccess(res, "get child", childLength);
+    resStatusSuccess(res, "get child length", childLength);
   } catch (error) {
     resStatusError(res, "get child length", error);
   }
