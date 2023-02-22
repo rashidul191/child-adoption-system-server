@@ -1,9 +1,14 @@
-const { resStatusSuccess, resStatusError } = require("../middleware/ResStatus");
+const {
+  resStatusSuccess,
+  resStatusError,
+  resStatusErrorIf,
+} = require("../middleware/ResStatus");
 const {
   getAgencyServices,
   postAgencyService,
   getAgencyByIdService,
   deleteAgencyByIdService,
+  patchAgencyService,
 } = require("../services/agency.service");
 
 // get Agency
@@ -49,5 +54,18 @@ module.exports.deleteAgencyById = async (req, res, next) => {
     resStatusSuccess(res, "delete agency by id", deleteAgencyById);
   } catch (error) {
     resStatusError(res, "delete agency by id", error);
+  }
+};
+
+// edit / update agency
+module.exports.patchAgency = async (req, res, next) => {
+  try {
+    const patchAgency = await patchAgencyService(req);
+    if (!patchAgency?.modifiedCount) {
+      resStatusErrorIf(res, "update agency info");
+    }
+    resStatusSuccess(res, "update agency info", patchAgency);
+  } catch (error) {
+    resStatusError(res, "update agency info", error);
   }
 };

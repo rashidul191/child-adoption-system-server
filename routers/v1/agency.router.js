@@ -12,6 +12,7 @@ router
 router
   .route("/:id")
   .get(agencyController.getAgencyById)
+  .patch(agencyController.patchAgency)
   .delete(verifyJWT, authorization, agencyController.deleteAgencyById);
 
 module.exports = router;

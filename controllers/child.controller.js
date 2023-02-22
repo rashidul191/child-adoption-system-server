@@ -1,4 +1,8 @@
-const { resStatusError, resStatusSuccess } = require("../middleware/ResStatus");
+const {
+  resStatusError,
+  resStatusSuccess,
+  resStatusErrorIf,
+} = require("../middleware/ResStatus");
 const {
   getChildService,
   childLengthService,
@@ -6,6 +10,7 @@ const {
   getChildByIdService,
   deleteChildByIdService,
   childTypesService,
+  patchChildByIdService,
 } = require("../services/child.service");
 
 module.exports.getChild = async (req, res, next) => {
@@ -77,5 +82,17 @@ module.exports.childTypes = async (req, res, next) => {
     resStatusSuccess(res, "get child types", childTypes);
   } catch (error) {
     resStatusError(res, "get child types ", error);
+  }
+};
+
+module.exports.patchChildById = async (req, res, next) => {
+  try {
+    const patchChildById = await patchChildByIdService(req);
+    if (!patchChildById.modifiedCount) {
+      resStatusErrorIf(res, "update child info");
+    }
+    resStatusSuccess(res, "update child info", patchChildById);
+  } catch (error) {
+    resStatusError(res, "update child info", error);
   }
 };

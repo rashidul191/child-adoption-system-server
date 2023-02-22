@@ -42,3 +42,14 @@ module.exports.childTypesService = async (req) => {
   const result = await db.collection("all_child").find(query).toArray();
   return result;
 };
+
+module.exports.patchChildByIdService = async (req) => {
+  const db = getDb();
+  const { id } = req.params;
+  const filter = { _id: ObjectId(id) };
+  const updateDoc = {
+    $set: req.body,
+  };
+  const result = await db.collection("all_child").updateOne(filter, updateDoc);
+  return result;
+};

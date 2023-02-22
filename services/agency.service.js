@@ -30,3 +30,14 @@ module.exports.deleteAgencyByIdService = async (req) => {
     .deleteOne({ _id: ObjectId(id) });
   return result;
 };
+
+module.exports.patchAgencyService = async (req) => {
+  const db = getDb();
+  const { id } = req.params;
+  const filter = { _id: ObjectId(id) };
+  const updateDoc = {
+    $set: req.body,
+  };
+  const result = await db.collection("allAgency").updateOne(filter, updateDoc);
+  return result;
+};
