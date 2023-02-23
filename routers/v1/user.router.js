@@ -13,7 +13,11 @@ router
 router.route("/").get(verifyJWT, authorization, userController.getUser);
 router.route("/allUser").get(userController.getAllUser);
 
+router
+  .route("/userRole")
+  .get(verifyJWT, authorization, userController.getUserRole);
 router.route("/email").get(userController.getUserWithEmail);
+
 router
   .route("/admin/:email")
   .get(userController.getCheckAdmin)

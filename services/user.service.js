@@ -10,7 +10,7 @@ module.exports.putUserService = async (req) => {
   const result = await db
     .collection("users")
     .updateOne(filter, updateDoc, options);
-    // console.log(result);
+  // console.log(result);
   return result;
 };
 
@@ -19,6 +19,21 @@ module.exports.getUserService = async () => {
   const result = await db.collection("users").find({}).toArray();
   return result;
 };
+
+module.exports.getUserRoleService = async (req) => {
+  const db = getDb();
+  const { userRole } = req.query;
+  console.log("userRole: ", userRole);
+  let findUserRole = [];
+  const result = await db.collection("users").find({}).toArray();
+  for (user of result) {
+    if (user.role == userRole) {
+      findUserRole.push(user);
+    }
+  }
+  return findUserRole;
+};
+
 module.exports.getAllUserService = async () => {
   const db = getDb();
   const result = await db.collection("users").find({}).toArray();
