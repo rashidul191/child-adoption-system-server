@@ -16,7 +16,6 @@ module.exports.verifyJWT = async (req, res, next) => {
       token,
       process.env.ACCESS_SECRET_KEY,
       function (error, decoded) {
-        console.log("jwt error: ", error);
         if (error) {
           return res.status(403).json({
             status: "fail",
@@ -28,7 +27,6 @@ module.exports.verifyJWT = async (req, res, next) => {
         next();
       }
     );
-
   } catch (error) {
     // console.log(error)
     return res.status(401).json({

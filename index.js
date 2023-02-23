@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// import require router file here
 const agencyRouter = require("./routers/v1/agency.router");
 const userRouter = require("./routers/v1/user.router");
 const childRouter = require("./routers/v1/child.router");
@@ -20,6 +21,7 @@ const paymentRouter = require("./routers/v1/payment.router");
 const childApplyRouter = require("./routers/v1/childApply.router");
 const checkEligibilityRouter = require("./routers/v1/checkEligibility.router");
 const subscriptionRouter = require("./routers/v1/subscription.router");
+const contactUsRouter = require("./routers/v1/contactUs.router");
 
 // server
 connectToServer((err) => {
@@ -48,6 +50,7 @@ app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/childApply", childApplyRouter);
 app.use("/api/v1/checkEligibility", checkEligibilityRouter);
 app.use("/api/v1/subscription", subscriptionRouter);
+app.use("/api/v1/contactUs", contactUsRouter);
 
 // global error handle function
 app.use(errorHandle);
