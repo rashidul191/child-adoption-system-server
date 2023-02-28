@@ -34,7 +34,7 @@ module.exports.postBlogService = async (req) => {
       </div>
       `,
   };
-  await sendMailWithGmail(mailData);
+  // await sendMailWithGmail(mailData);
   return result;
 };
 

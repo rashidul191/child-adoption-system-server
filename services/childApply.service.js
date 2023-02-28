@@ -30,7 +30,7 @@ module.exports.postChildApplyService = async (req) => {
         </div>
         `,
     };
-    await sendMailWithGmail(mailData);
+    // await sendMailWithGmail(mailData);
   }
 
   return result;
@@ -77,7 +77,7 @@ module.exports.putChildApplyByIdService = async (req) => {
         `,
     };
 
-    await sendMailWithGmail(mailData);
+    // await sendMailWithGmail(mailData);
   }
 
   return result;

@@ -17,7 +17,7 @@ module.exports.postContactUsService = async (req) => {
         </div>
         `,
   };
-  await sendMailWithGmail(mailData);
+  // await sendMailWithGmail(mailData);
 
   return result;
 };
