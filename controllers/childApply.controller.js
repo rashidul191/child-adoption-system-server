@@ -10,6 +10,7 @@ const {
   putChildApplyByIdService,
   deleteChildApplyByIdService,
   getChildApplyWithEmailService,
+  getChildApprovedService,
 } = require("../services/childApply.service");
 
 module.exports.getChildApply = async (req, res, next) => {
@@ -76,9 +77,16 @@ module.exports.getChildApplyWithEmail = async (req, res, next) => {
   try {
     const getChildApplyWithEmail = await getChildApplyWithEmailService(req);
     resStatusSuccess(res, "get child apply with email", getChildApplyWithEmail);
-
-    
   } catch (error) {
     resStatusError(res, "get child apply with email", error);
+  }
+};
+
+module.exports.getChildApproved = async (req, res, next) => {
+  try {
+    const childApproved = await getChildApprovedService();
+    resStatusSuccess(res, "get child approved data", childApproved);
+  } catch (error) {
+    resStatusError(res, "get child approved data", error);
   }
 };

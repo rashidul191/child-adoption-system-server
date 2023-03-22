@@ -97,5 +97,10 @@ module.exports.getChildApplyWithEmailService = async (req) => {
   const query = { email: email };
   const result = await db.collection("child-apply").find(query).toArray();
   return result;
-  res.send(result);
+};
+
+module.exports.getChildApprovedService = async () => {
+  const db = getDb();
+  result = await db.collection("child-apply").find({}).toArray();
+  return result;
 };

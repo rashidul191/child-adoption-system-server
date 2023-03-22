@@ -3,7 +3,8 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const oAuth2Client = new google.auth.OAuth2(
-  process.env.SEND_MAIL_CLIENT_ID,
+  // process.env.SEND_MAIL_CLIENT_ID,
+  "536465196733-nfpsls2n6ja5cppf5kkotvs3uj09aqtq.apps.googleusercontent.com ",
   //  process.evn.SEND_MAIL_CLIENT_SECRET,
   "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", //CLIENT_SECRET
   "https://developers.google.com/oauthplayground"
@@ -73,7 +74,7 @@ module.exports.sendMailWithGmail = async (data) => {
     `,
   };
 
-  //   console.log("Mail data: ",mailData);
+    console.log("Mail data: ",mailData);
   let info = await transporter.sendMail(mailData);
   //   console.log("Message sent successfully : %s", info.messageId);
   //   console.log("Preview URL : %s", nodemailer.getTestMessageUrl(info));

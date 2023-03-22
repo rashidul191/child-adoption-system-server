@@ -9,6 +9,7 @@ router.get(
   verifyJWT,
   childApplyController.getChildApplyWithEmail
 );
+router.get("/child-approved", childApplyController.getChildApproved)
 router
   .route("/")
   .get(verifyJWT, authorization, childApplyController.getChildApply)

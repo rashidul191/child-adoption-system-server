@@ -25,7 +25,8 @@ module.exports.putSubscriptionService = async (req) => {
       </div>
       `,
   };
-  // await sendMailWithGmail(mailData);
+  await sendMailWithGmail(mailData);
+
   return result;
 };
 
