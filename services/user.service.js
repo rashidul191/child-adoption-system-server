@@ -65,12 +65,26 @@ module.exports.putMakeAdminService = async (req) => {
     .updateOne(filter, updateDoc, options);
   return result;
 };
+
 module.exports.putMakeEmployerService = async (req) => {
   const db = getDb();
   const filter = { email: req.params.email };
   const options = { upsert: true };
   const updateDoc = {
     $set: { role: "employer" },
+  };
+  const result = await db
+    .collection("users")
+    .updateOne(filter, updateDoc, options);
+  return result;
+};
+
+module.exports.putRemoveEmployerService = async (req) => {
+  const db = getDb();
+  const filter = { email: req.params.email };
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: { role: "" },
   };
   const result = await db
     .collection("users")

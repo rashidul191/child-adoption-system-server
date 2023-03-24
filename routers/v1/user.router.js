@@ -25,8 +25,14 @@ router
 router
   .route("/employer/:email")
   .get(userController.getCheckEmployer)
-  // .put(userController.putMakeEmployer);
   .put(verifyJWT, authorization, userController.putMakeEmployer);
+
+router.put(
+  "/removeEmployer/:email",
+  verifyJWT,
+  authorization,
+  userController.putRemoveEmployer
+);
 
 router.get("/allUsersLength", userController.getUserLength);
 

@@ -17,6 +17,7 @@ const {
   getCheckAdminService,
   getCheckEmployerService,
   deleteUserService,
+  putRemoveEmployerService,
 } = require("../services/user.service");
 
 module.exports.putUser = async (req, res, next) => {
@@ -112,6 +113,19 @@ module.exports.putMakeEmployer = async (req, res, next) => {
     resStatusSuccess(res, "make employer", putMakeEmployer);
   } catch (error) {
     resStatusError(res, "make employer", error);
+  }
+};
+
+module.exports.putRemoveEmployer = async (req, res, next) => {
+  try {
+    console.log(req.params.email);
+    const putRemoveEmployer = await putRemoveEmployerService(req);
+    if (!putRemoveEmployer.modifiedCount) {
+      resStatusErrorIf(res, "remove employer");
+    }
+    resStatusSuccess(res, "remove employer", putRemoveEmployer);
+  } catch (error) {
+    resStatusError(res, "remove employer", error);
   }
 };
 
